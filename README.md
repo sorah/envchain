@@ -40,9 +40,8 @@ $ envchain --set hubot HUBOT_HIPCHAT_PASSWORD
 hubot.HUBOT_HIPCHAT_PASSWORD: xxxx
 ```
 
-They'll appear on your keychain.
+They'll appear in your keychain.
 
-![](http://img.sorah.jp/20140519_060147_dqwbh_20140519_060144_s1zku_Keychain_Access.png)
 
 ### Execute with defined variables
 
@@ -50,11 +49,13 @@ They'll appear on your keychain.
 $ envchain aws env | grep AWS_
 AWS_ACCESS_KEY_ID=my-access-key
 AWS_SECRET_ACCESS_KEY=secret
+$ envchain aws s3cmd blah blah blah
+...
 ```
 
 ```
-$ envchain aws hubot | grep AWS_
-$ envchain aws hubot | grep HUBOT_
+$ envchain hubot env | grep AWS_
+$ envchain hubot env | grep HUBOT_
 HUBOT_HIPCHAT_PASSWORD: xxxx
 ```
 
@@ -71,6 +72,10 @@ $ envchain --set --require-passphrase name
 - Disable ditto
 $ envchain --set --no-require-passphrase name
 ```
+
+### Keychain will be
+
+![](http://img.sorah.jp/20140519_060147_dqwbh_20140519_060144_s1zku_Keychain_Access.png)
 
 ## Author
 
