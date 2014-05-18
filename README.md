@@ -1,4 +1,4 @@
-# envchain - inject environment variables by OS X keychain, as you need
+# envchain - inject environment variables by OS X keychain
 
 ## What?
 
@@ -6,7 +6,7 @@ Are you writing credentials like `export AWS_SECRET_ACCESS_KEY=XXX` in `~/.bashr
 If you're doing so, __that's a risk.__ In such environment, malicious scripts can get credentials via environment variable.
 Easy to steal!
 
-`envchain` allows you to secure credential environment variables using OS X keychain, and set to environment variables as you called explicitly.
+`envchain` allows you to secure credential environment variables using OS X keychain, and set to environment variables only when you called explicitly.
 
 Don't give any credentials implicitly!
 
