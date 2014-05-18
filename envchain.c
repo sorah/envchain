@@ -83,7 +83,7 @@ envchain_abort_with_help(void)
 /* misc */
 
 
-void
+static void
 envchain_fail_osstatus(OSStatus status)
 {
   CFStringRef str;
@@ -101,7 +101,7 @@ envchain_fail_osstatus(OSStatus status)
 }
 
 
-char*
+static char*
 envchain_generate_service_name(const char *name)
 {
   char *service_name;
@@ -110,7 +110,7 @@ envchain_generate_service_name(const char *name)
   return service_name;
 }
 
-CFStringRef
+static CFStringRef
 envchain_generate_service_name_cf(const char *name)
 {
   return CFStringCreateWithFormat(
@@ -140,7 +140,7 @@ envchain_get_self_path(void)
   return selfrealpath;
 }
 
-CFArrayRef
+static CFArrayRef
 envchain_self_trusted_app_list(void)
 {
   char* selfpath = envchain_get_self_path();
@@ -162,7 +162,7 @@ fail:
 }
 
 
-void
+static void
 envchain_search_values_applier(const void *raw_ref, void *raw_context)
 {
   OSStatus status;
@@ -225,7 +225,6 @@ envchain_search_values(const char *name, envchain_search_callback callback, void
   OSStatus status;
   CFStringRef service_name = envchain_generate_service_name_cf(name);
   CFArrayRef items = NULL;
-  SecKeychainItemRef ref = NULL;
 
   const void *query_keys[] = {
     kSecClass, kSecAttrService,
@@ -240,7 +239,6 @@ envchain_search_values(const char *name, envchain_search_callback callback, void
       query_keys, query_vals, sizeof(query_keys) / sizeof(query_keys[0]),
       &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
-  //status = SecItemCopyMatching(query, (CFTypeRef *)&ref);
   status = SecItemCopyMatching(query, (CFTypeRef *)&items);
   if (status != errSecItemNotFound && status != noErr) goto fail;
 
@@ -254,7 +252,6 @@ envchain_search_values(const char *name, envchain_search_callback callback, void
   }
   
   envchain_search_values_applier_data context = {callback, data};
-  //envchain_search_values_applier(&ref, &context);
   CFArrayApplyFunction(
     items, CFRangeMake(0, CFArrayGetCount(items)),
     &envchain_search_values_applier, &context
@@ -376,7 +373,7 @@ fail:
 
 /* functions for --set */
 
-static char*
+char*
 envchain_noecho_read(char* prompt)
 {
   struct termios term, term_orig;
@@ -411,7 +408,7 @@ envchain_noecho_read(char* prompt)
 }
 
 
-char*
+static char*
 envchain_ask_value(const char* name, const char* key, int noecho)
 {
   char *prompt, *line;
@@ -477,9 +474,11 @@ envchain_set(int argc, char const **argv)
 
 /* functions for exec mode */
 
-void
+static void
 envchain_exec_value_callback(char* key, char* value, void *context)
 {
+  (void)context; /* silence warning */
+
   setenv(key, value, 1);
 }
 
