@@ -435,7 +435,7 @@ envchain_ask_value(const char* name, const char* key, int noecho)
 }
 
 int
-envchain_set(int argc, char const **argv)
+envchain_set(int argc, const char **argv)
 {
   int noecho = 0;
   int require_passphrase = -1;
@@ -491,7 +491,7 @@ envchain_exec_value_callback(char* key, char* value, void *context)
 }
 
 int
-envchain_exec(int argc, char const **argv)
+envchain_exec(int argc, const char **argv)
 {
   if (argc < 2) envchain_abort_with_help();
 
@@ -521,7 +521,7 @@ envchain_exec(int argc, char const **argv)
 /* entry point */
 
 int
-main(int argc, char const **argv)
+main(int argc, const char **argv)
 {
   envchain_name = argv[0];
   if (argc < 2) envchain_abort_with_help();
