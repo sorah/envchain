@@ -40,7 +40,7 @@
 
 #define ENVCHAIN_SERVICE_SUFFIX "envchain-"
 
-static const char version[] = "0.0.2";
+static const char version[] = "0.0.3";
 const char *envchain_name;
 SecKeychainRef envchain_keychain = NULL;
 
