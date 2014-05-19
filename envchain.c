@@ -82,7 +82,6 @@ envchain_abort_with_help(void)
 
 /* misc */
 
-
 static void
 envchain_fail_osstatus(OSStatus status)
 {
@@ -99,7 +98,6 @@ envchain_fail_osstatus(OSStatus status)
   CFRelease(str);
   exit(10);
 }
-
 
 static char*
 envchain_generate_service_name(const char *name)
@@ -160,7 +158,6 @@ fail:
 
   return list;
 }
-
 
 static void
 envchain_search_values_applier(const void *raw_ref, void *raw_context)
@@ -258,7 +255,7 @@ envchain_search_values(const char *name, envchain_search_callback callback, void
     );
     return 1;
   }
-  
+
   envchain_search_values_applier_data context = {callback, data};
   CFArrayApplyFunction(
     items, CFRangeMake(0, CFArrayGetCount(items)),
@@ -273,7 +270,6 @@ fail:
 
   return 0;
 }
-
 
 int
 envchain_find_value(const char *name, const char *key, SecKeychainItemRef *ref)
@@ -414,7 +410,6 @@ envchain_noecho_read(char* prompt)
 
   return str;
 }
-
 
 static char*
 envchain_ask_value(const char* name, const char* key, int noecho)
