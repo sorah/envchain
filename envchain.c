@@ -190,6 +190,8 @@ envchain_search_values_applier(const void *raw_ref, void *raw_context)
       keylen = attr.length;
 
       key = malloc(keylen+1);
+      if (key == NULL) goto fail;
+
       memcpy(key, rawkey, keylen);
       key[keylen] = '\0';
 
@@ -197,12 +199,13 @@ envchain_search_values_applier(const void *raw_ref, void *raw_context)
     }
   }
 
-  if (key == NULL) {
+  if (rawkey == NULL) {
     fprintf(stderr, "Can't find account name\n");
     goto ensure;
   }
 
   value = malloc(len+1);
+  if (value == NULL) goto fail;
   memcpy(value,rawvalue,len);
   value[len] = '\0';
   context->callback(key, value, context->data);
@@ -210,11 +213,16 @@ envchain_search_values_applier(const void *raw_ref, void *raw_context)
   goto ensure;
 fail:
   fprintf(stderr, "Something wrong during searching value\n");
+  if (errno) fprintf(stderr, "errno: %s\n", strerror(errno));
 ensure:
-  memset(value, 0, len);
-  memset(key, 0, keylen);
-  free(value);
-  free(key);
+  if (value) {
+    memset(value, 0, len);
+    free(value);
+  }
+  if (key) {
+    memset(key, 0, keylen);
+    free(key);
+  }
   SecKeychainItemFreeContent(&list, rawvalue);
   return;
 }
