@@ -125,7 +125,8 @@ envchain_get_self_path(void)
   char *selfrealpath;
   if (_NSGetExecutablePath(selfpath, &pathlen) < 0) {
     selfpath = realloc(selfpath, sizeof(char) * pathlen);
-    assert(_NSGetExecutablePath(selfpath, &pathlen) >= 0);
+    int got_executable_path = _NSGetExecutablePath(selfpath, &pathlen);
+    assert(got_executable_path >= 0);
   }
 
   selfrealpath = realpath(selfpath, NULL);
@@ -385,6 +386,7 @@ envchain_noecho_read(char* prompt)
   char* str = NULL;
   ssize_t len;
   size_t n;
+  int ret;
 
   if (tcgetattr(STDIN_FILENO, &term) < 0) {
     if (errno == ENOTTY) {
@@ -398,12 +400,14 @@ envchain_noecho_read(char* prompt)
 
   term_orig = term;
   term.c_lflag &= ~ECHO;
-  assert(tcsetattr(STDIN_FILENO, TCSAFLUSH, &term) >= 0);
+  ret = tcsetattr(STDIN_FILENO, TCSAFLUSH, &term);
+  assert(ret >= 0);
 
   printf("%s (noecho):", prompt);
   len = getline(&str, &n, stdin);
 
-  assert(tcsetattr(STDIN_FILENO, TCSAFLUSH, &term_orig) >= 0);
+  ret = tcsetattr(STDIN_FILENO, TCSAFLUSH, &term_orig);
+  assert(ret >= 0);
   assert(len >= 0);
 
   str[len - 1] = '\0';
