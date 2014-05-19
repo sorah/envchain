@@ -123,9 +123,10 @@ envchain_get_self_path(void)
   uint32_t pathlen = 0;
   char *selfpath = malloc(sizeof(char) * 255);
   char *selfrealpath;
-  if (_NSGetExecutablePath(selfpath, &pathlen) < 0)
+  if (_NSGetExecutablePath(selfpath, &pathlen) < 0) {
     selfpath = realloc(selfpath, sizeof(char) * pathlen);
     assert(_NSGetExecutablePath(selfpath, &pathlen) >= 0);
+  }
 
   selfrealpath = realpath(selfpath, NULL);
   if (selfrealpath == NULL) {
