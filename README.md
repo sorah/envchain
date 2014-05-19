@@ -1,10 +1,13 @@
-# envchain - inject environment variables by OS X keychain
+# envchain - set environment variables with OS X keychain
 
 ## What?
 
-Are you writing credentials like `export AWS_SECRET_ACCESS_KEY=XXX` in `~/.bashrc` or `zshrc`?
-If you're doing so, __that's a risk.__ In such environment, malicious scripts can get credentials via environment variable.
-Easy to steal!
+Secrets for common computing environments, such as `AWS_SECRET_ACCESS_KEY`, are
+set with environment variables.
+
+A common practice is to set them in shell's intialization files such as `.bashrc` and `.zshrc`.
+
+Putting these secrets on disk is a grave risk in this way is a grave risk.
 
 `envchain` allows you to secure credential environment variables using OS X keychain, and set to environment variables only when you called explicitly.
 
@@ -13,8 +16,8 @@ Don't give any credentials implicitly!
 ## Requirement
 
 - OS X
-  - At least I confirmed to work on OS X 10.9 (Mavericks)
-  - (I guess) OS X 10.7 (Lion) or later is required
+  - Confirmed to work on OS X 10.9 (Mavericks)
+  - OS X 10.7 (Lion) or later is required (unconfirmed)
 
 ## Installation
 
@@ -34,46 +37,60 @@ $ cp ./envchain ~/bin/
 $ envchain --set aws AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
 aws.AWS_ACCESS_KEY_ID: my-access-key
 aws.AWS_SECRET_ACCESS_KEY: secret
+```
 
-(supporting multiple namespaces)
+You can separate environment variables via namespaces:
+
+```
 $ envchain --set hubot HUBOT_HIPCHAT_PASSWORD
 hubot.HUBOT_HIPCHAT_PASSWORD: xxxx
 ```
 
-They'll appear in your keychain.
+These will appear as application passwords with `envchain-NAMESPACE`
+in Keychain.
 
-
-### Execute with defined variables
+### Execute commands with defined variables
 
 ```
+$ env | grep AWS_ || echo "No AWS_ env vars"
+No AWS_ env vars
 $ envchain aws env | grep AWS_
 AWS_ACCESS_KEY_ID=my-access-key
 AWS_SECRET_ACCESS_KEY=secret
 $ envchain aws s3cmd blah blah blah
-...
+⋮
 ```
 
 ```
-$ envchain hubot env | grep AWS_
+$ envchain hubot env | grep AWS_ || echo "No AWS_ env vars for hubot"
+No AWS_ env vars for hubot
 $ envchain hubot env | grep HUBOT_
 HUBOT_HIPCHAT_PASSWORD: xxxx
 ```
 
 ### More options
 
+#### `--noecho`
+
+Do not echo user input
 ```
-- prompting with noecho
 $ envchain --set --noecho foo BAR
-foo.BAR (noecho): 
+foo.BAR (noecho):
+```
+#### `--require-passphrase`
 
-- Always ask keychain password
+Always ask for keychain passphrase
+```
 $ envchain --set --require-passphrase name
+```
 
-- Disable ditto
+#### `--no-require-passphrase`
+
+Do not ask for keychain passphrase
 $ envchain --set --no-require-passphrase name
 ```
 
-### Keychain will be
+### Screenshot
 
 ![](http://img.sorah.jp/20140519_060147_dqwbh_20140519_060144_s1zku_Keychain_Access.png)
 
