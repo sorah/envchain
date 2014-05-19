@@ -106,7 +106,10 @@ envchain_generate_service_name(const char *name)
 {
   char *service_name;
   asprintf(&service_name, "%s%s", ENVCHAIN_SERVICE_SUFFIX, name);
-  assert(service_name != NULL);
+  if (service_name == NULL) {
+    fprintf(stderr, "Failed to generate service_name\n");
+    exit(10);
+  }
   return service_name;
 }
 
@@ -125,9 +128,13 @@ envchain_get_self_path(void)
   uint32_t pathlen = 0;
   char *selfpath = malloc(sizeof(char) * 255);
   char *selfrealpath;
-  if (_NSGetExecutablePath(selfpath, &pathlen) < 0)
+  if (_NSGetExecutablePath(selfpath, &pathlen) < 0) {
     selfpath = realloc(selfpath, sizeof(char) * pathlen);
-    assert(_NSGetExecutablePath(selfpath, &pathlen) >= 0);
+    if (_NSGetExecutablePath(selfpath, &pathlen) < 0) {
+      fprintf(stderr, "NSGetExecutablePath something went wrong :/\n");
+      exit(10);
+    }
+  }
 
   selfrealpath = realpath(selfpath, NULL);
   if (selfrealpath == NULL) {
@@ -330,6 +337,9 @@ envchain_save_value(const char *name, const char *key, char *value, int require_
   if (status != noErr) goto fail;
 
   if (require_passphrase >= 0) {
+    CFArrayRef app_list = NULL;
+    CFStringRef desc = NULL;
+
     status = SecKeychainItemCopyAccess(ref, &access_ref);
     if (status != noErr) goto fail;
 
@@ -337,10 +347,12 @@ envchain_save_value(const char *name, const char *key, char *value, int require_
       access_ref, kSecACLAuthorizationDecrypt
     );
     SecACLRef acl = (SecACLRef)CFArrayGetValueAtIndex(acl_list, 0);
-    assert(acl != NULL);
 
-    CFArrayRef app_list = NULL;
-    CFStringRef desc = NULL;
+    if (acl == NULL) {
+      fprintf(stderr, "error: There's no ACL?\n");
+      goto passfail;
+    }
+
     SecKeychainPromptSelector prompt;
     status = SecACLCopyContents(acl, &app_list, &desc, &prompt);
     if (status != noErr) goto passfail;
@@ -357,7 +369,6 @@ envchain_save_value(const char *name, const char *key, char *value, int require_
       app_list = envchain_self_trusted_app_list();
     }
 
-    assert(app_list != NULL);
     printf("%16x", prompt);
     status = SecACLSetContents(acl, app_list, desc, prompt);
     if (status != noErr) goto passfail;
@@ -401,12 +412,18 @@ envchain_noecho_read(char* prompt)
 
   term_orig = term;
   term.c_lflag &= ~ECHO;
-  assert(tcsetattr(STDIN_FILENO, TCSAFLUSH, &term) >= 0);
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &term) < 0) {
+    fprintf(stderr, "tcsetattr failed\n");
+    exit(10);
+  }
 
   printf("%s (noecho):", prompt);
   len = getline(&str, &n, stdin);
 
-  assert(tcsetattr(STDIN_FILENO, TCSAFLUSH, &term_orig) >= 0);
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &term_orig) < 0) {
+    fprintf(stderr, "tcsetattr restore failed\n");
+    exit(10);
+  }
   assert(len >= 0);
 
   str[len - 1] = '\0';
