@@ -38,7 +38,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>
 
-#define ENVCHAIN_SERVICE_SUFFIX "envchain-"
+#define ENVCHAIN_SERVICE_PREFIX "envchain-"
 
 static const char version[] = "0.0.3";
 const char *envchain_name;
@@ -105,7 +105,7 @@ static char*
 envchain_generate_service_name(const char *name)
 {
   char *service_name;
-  asprintf(&service_name, "%s%s", ENVCHAIN_SERVICE_SUFFIX, name);
+  asprintf(&service_name, "%s%s", ENVCHAIN_SERVICE_PREFIX, name);
   if (service_name == NULL) {
     fprintf(stderr, "Failed to generate service_name\n");
     exit(10);
@@ -118,7 +118,7 @@ envchain_generate_service_name_cf(const char *name)
 {
   return CFStringCreateWithFormat(
       NULL, NULL,
-      CFSTR("%s%s"), ENVCHAIN_SERVICE_SUFFIX, name
+      CFSTR("%s%s"), ENVCHAIN_SERVICE_PREFIX, name
   );
 }
 
