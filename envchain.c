@@ -1,4 +1,4 @@
-/* envchain v0.0.1 
+/* envchain
  *
  * Copyright (c) 2014 Shota Fukumori (sora_h)
  *
