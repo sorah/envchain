@@ -7,7 +7,7 @@ set with environment variables.
 
 A common practice is to set them in shell's intialization files such as `.bashrc` and `.zshrc`.
 
-Putting these secrets on disk is a grave risk in this way is a grave risk.
+Putting these secrets on disk in this way is a grave risk.
 
 `envchain` allows you to secure credential environment variables using OS X keychain, and set to environment variables only when you called explicitly.
 
@@ -87,6 +87,7 @@ $ envchain --set --require-passphrase name
 #### `--no-require-passphrase`
 
 Do not ask for keychain passphrase
+```
 $ envchain --set --no-require-passphrase name
 ```
 
