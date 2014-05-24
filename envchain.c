@@ -425,10 +425,9 @@ envchain_noecho_read(char* prompt)
     exit(10);
   }
 
-  if (len == 0)
-    str[0] = '\0';
-  else
-    str[len - 1] = '\0';
+  if (len > 0 && str[len - 1] == '\n')
+    --len;
+  str[len] = '\0';
 
   printf("\n");
 
