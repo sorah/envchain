@@ -424,9 +424,12 @@ envchain_noecho_read(char* prompt)
     fprintf(stderr, "tcsetattr restore failed\n");
     exit(10);
   }
-  assert(len >= 0);
 
-  str[len - 1] = '\0';
+  if (len == 0)
+    str[0] = '\0';
+  else
+    str[len - 1] = '\0';
+
   printf("\n");
 
   return str;
