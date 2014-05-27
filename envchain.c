@@ -40,7 +40,7 @@
 
 #define ENVCHAIN_SERVICE_PREFIX "envchain-"
 
-static const char version[] = "0.0.3";
+static const char version[] = "0.1.0";
 const char *envchain_name;
 SecKeychainRef envchain_keychain = NULL;
 
