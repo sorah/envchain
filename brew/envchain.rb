@@ -3,8 +3,8 @@ require "formula"
 class Envchain < Formula
   homepage "https://github.com/sorah/envchain"
   head "https://github.com/sorah/envchain.git"
-  url "https://github.com/sorah/envchain/archive/v0.1.0.tar.gz"
-  sha1 "184d77032de985538a630e4ca4d17ed9d2e71566"
+  url "https://github.com/sorah/envchain/archive/v0.2.0.tar.gz"
+  sha1 "7d100ddbd118475ef094b25da7c361f921764e89"
 
   def install
     system "make", "DESTDIR=#{prefix}", "install"
