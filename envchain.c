@@ -513,15 +513,19 @@ envchain_exec(int argc, const char **argv)
 {
   if (argc < 2) envchain_abort_with_help();
 
-  const char *name, *exe;
+  const char *name, *names, *exe;
   char **args;
 
-  name = argv[0];
+  names = argv[0];
   exe = argv[1];
   argv++; argc--;
   argv++; argc--;
 
-  envchain_search_values(name, &envchain_exec_value_callback, NULL);
+  name = strtok((char*)names, ",");
+  while (name) {
+    envchain_search_values(name, &envchain_exec_value_callback, NULL);
+    name = strtok(NULL, ",");
+  }
 
   int len = (2+argc);
   args = malloc(sizeof(char*) * len);
