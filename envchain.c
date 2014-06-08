@@ -513,18 +513,16 @@ envchain_exec(int argc, const char **argv)
 {
   if (argc < 2) envchain_abort_with_help();
 
-  const char *name, *names, *exe;
+  char *name, *names, *exe;
   char **args;
 
-  names = argv[0];
-  exe = argv[1];
+  names = (char*)argv[0];
+  exe = (char*)argv[1];
   argv++; argc--;
   argv++; argc--;
 
-  name = strtok((char*)names, ",");
-  while (name) {
+  while ((name = strsep(&names, ",")) != NULL) {
     envchain_search_values(name, &envchain_exec_value_callback, NULL);
-    name = strtok(NULL, ",");
   }
 
   int len = (2+argc);
