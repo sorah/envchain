@@ -476,7 +476,7 @@ envchain_set(int argc, const char **argv)
       require_passphrase = 0;
     }
     else {
-      fprintf(stderr, "Unknown option: %s", argv[0]);
+      fprintf(stderr, "Unknown option: %s\n", argv[0]);
       return 1;
     }
   }
@@ -552,7 +552,7 @@ main(int argc, const char **argv)
     return envchain_set(argc, argv);
   }
   else if (argv[0][0] == '-') {
-    fprintf(stderr, "Unknown option %s", argv[0]);
+    fprintf(stderr, "Unknown option %s\n", argv[0]);
     return 2;
   }
   else {
