@@ -46,10 +46,25 @@ const char *envchain_name;
 SecKeychainRef envchain_keychain = NULL;
 
 typedef void (*envchain_search_callback)(char* key, char* value, void *context);
+typedef void (*envchain_namespace_search_callback)(char* name, void *context);
 typedef struct {
-  envchain_search_callback callback;
+  envchain_search_callback search_callback;
+  envchain_namespace_search_callback namespace_callback;
   void *data;
 } envchain_search_values_applier_data;
+
+typedef struct {
+  envchain_namespace_search_callback callback;
+  int head_index;
+  char** names;
+  void *data;
+} envchain_search_namespaces_context;
+
+
+typedef struct {
+  const char* target;
+  int show_value;
+} envchain_list_context;
 
 /* for help */
 
@@ -83,6 +98,11 @@ envchain_abort_with_help(void)
 
 /* misc */
 
+static int
+envchain_sortcmp_str(const void *a, const void *b)
+{
+  return strcmp((const char*)a, (const char*)b);
+}
 
 static void
 envchain_fail_osstatus(OSStatus status)
@@ -178,6 +198,12 @@ envchain_search_values_applier(const void *raw_ref, void *raw_context)
   SecKeychainItemRef ref = (SecKeychainItemRef) raw_ref;
 
   SecKeychainAttribute attr = {kSecAccountItemAttr, 0, NULL};
+  if (context->search_callback) {
+    attr.tag = kSecAccountItemAttr;
+  }
+  else {
+    attr.tag = kSecServiceItemAttr;
+  }
   SecKeychainAttributeList list = {1, &attr};
   SecItemClass klass;
   UInt32 len, keylen = 0;
@@ -186,14 +212,22 @@ envchain_search_values_applier(const void *raw_ref, void *raw_context)
   char* value = NULL;
   char* key = NULL;
 
-  status = SecKeychainItemCopyContent(
-    ref, &klass, &list, &len, (void*)&rawvalue
-  );
+  if (context->search_callback) {
+    status = SecKeychainItemCopyContent(
+      ref, &klass, &list, &len, (void*)&rawvalue
+    );
+  }
+  else {
+    status = SecKeychainItemCopyContent(
+      ref, &klass, &list, &len, NULL
+    );
+  }
+
   if (status != noErr) goto fail;
 
   for(UInt32 i = 0; i < list.count; i++) {
     SecKeychainAttribute attr = list.attr[i];
-    if (attr.tag == kSecAccountItemAttr) {
+    if (attr.tag == kSecAccountItemAttr || attr.tag == kSecServiceItemAttr) {
       rawkey = (char*)attr.data;
       keylen = attr.length;
 
@@ -203,6 +237,18 @@ envchain_search_values_applier(const void *raw_ref, void *raw_context)
       memcpy(key, rawkey, keylen);
       key[keylen] = '\0';
 
+      if (attr.tag == kSecServiceItemAttr) {
+        if (strncmp(key, ENVCHAIN_SERVICE_PREFIX, strlen(ENVCHAIN_SERVICE_PREFIX)) == 0) {
+          keylen = keylen - strlen(ENVCHAIN_SERVICE_PREFIX);
+          char* service_name = malloc(keylen + 1);
+
+          memcpy(service_name, &key[strlen(ENVCHAIN_SERVICE_PREFIX)], keylen);
+          service_name[keylen] = '\0';
+
+          free(key);
+          key = service_name;
+        }
+      }
       break;
     }
   }
@@ -212,11 +258,16 @@ envchain_search_values_applier(const void *raw_ref, void *raw_context)
     goto ensure;
   }
 
-  value = malloc(len+1);
-  if (value == NULL) goto fail;
-  memcpy(value,rawvalue,len);
-  value[len] = '\0';
-  context->callback(key, value, context->data);
+  if (context->search_callback) {
+    value = malloc(len+1);
+    if (value == NULL) goto fail;
+    memcpy(value,rawvalue,len);
+    value[len] = '\0';
+    context->search_callback(key, value, context->data);
+  }
+  else {
+    context->namespace_callback(key, context->data);
+  }
 
   goto ensure;
 fail:
@@ -231,8 +282,82 @@ ensure:
     memset(key, 0, keylen);
     free(key);
   }
-  SecKeychainItemFreeContent(&list, rawvalue);
+  if (context->search_callback) {
+    SecKeychainItemFreeContent(&list, rawvalue);
+  }
   return;
+}
+
+static void
+envchain_search_namespaces_uniqufier(char* name, void *raw_context)
+{
+  envchain_search_namespaces_context* context = (envchain_search_namespaces_context*)raw_context;
+
+  char* item = malloc((strlen(name) * sizeof(char)) + 1);
+  strcpy(item, name);
+
+  context->names[context->head_index] = item;
+  context->head_index++;
+}
+
+int
+envchain_search_namespaces(envchain_namespace_search_callback callback, void *data)
+{
+  OSStatus status;
+  CFArrayRef items = NULL;
+  CFStringRef description = CFStringCreateWithCString(NULL, ENVCHAIN_ITEM_DESCRIPTION, kCFStringEncodingUTF8);
+
+  const void *query_keys[] = {
+    kSecClass, kSecAttrDescription,
+    kSecReturnRef, kSecMatchLimit
+  };
+  const void *query_vals[] = {
+    kSecClassGenericPassword, description,
+    kCFBooleanTrue, kSecMatchLimitAll
+  };
+
+  CFDictionaryRef query = CFDictionaryCreate(kCFAllocatorDefault,
+      query_keys, query_vals, sizeof(query_keys) / sizeof(query_keys[0]),
+      &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+
+  status = SecItemCopyMatching(query, (CFTypeRef *)&items);
+  if (status != errSecItemNotFound && status != noErr) goto fail;
+
+  if (status == errSecItemNotFound || CFArrayGetCount(items) == 0) {
+    return 0;
+  }
+  
+  char** names = malloc(sizeof(char*) * CFArrayGetCount(items));
+  if (names == NULL) {
+    fprintf(stderr, "malloc fail (names)\n");
+    goto fail;
+  }
+
+  envchain_search_namespaces_context context = {callback, 0, names, data};
+  envchain_search_values_applier_data applier_context = {NULL, envchain_search_namespaces_uniqufier, &context};
+  CFArrayApplyFunction(
+    items, CFRangeMake(0, CFArrayGetCount(items)),
+    &envchain_search_values_applier, &applier_context
+  );
+
+  qsort(names, CFArrayGetCount(items), sizeof(char*), envchain_sortcmp_str);
+  char *prev_name = NULL;
+  for(int i = 0; i < CFArrayGetCount(items); i++) {
+    if (!prev_name || strcmp(prev_name, names[i]) != 0)
+      callback(names[i], data);
+    prev_name = names[i];
+  }
+  for(int i = 0; i < CFArrayGetCount(items); i++) free(names[i]);
+
+  free(names);
+
+fail:
+  if (items != NULL) CFRelease(items);
+  if (query != NULL) CFRelease(query);
+  if (description != NULL) CFRelease(description);
+  if (status != noErr) envchain_fail_osstatus(status);
+
+  return 0;
 }
 
 int
@@ -267,7 +392,7 @@ envchain_search_values(const char *name, envchain_search_callback callback, void
     return 1;
   }
   
-  envchain_search_values_applier_data context = {callback, data};
+  envchain_search_values_applier_data context = {callback, NULL, data};
   CFArrayApplyFunction(
     items, CFRangeMake(0, CFArrayGetCount(items)),
     &envchain_search_values_applier, &context
@@ -511,6 +636,58 @@ envchain_set(int argc, const char **argv)
   return 0;
 }
 
+/* functions for list */
+
+static void
+envchain_list_value_callback(char *key, char* value, void *raw_context)
+{
+  envchain_list_context* context = (envchain_list_context*)raw_context;
+
+  if (context->show_value) {
+    printf("%s=%s\n", key, value);
+  }
+  else {
+    printf("%s\n", key);
+  }
+}
+
+static void
+envchain_list_namespace_callback(char *name, void *raw_context)
+{
+  (void)raw_context; /* silence warning */
+
+  printf("%s\n", name);
+}
+
+int
+envchain_list(int argc, const char **argv)
+{
+  envchain_list_context context = {NULL,0};
+
+  while (0 < argc) {
+    if (strcmp(argv[0], "--show-value") == 0 || strcmp(argv[0], "-v") == 0) {
+      argv++; argc--;
+      context.show_value = 1;
+    }
+    else {
+      if (context.target) envchain_abort_with_help();
+      context.target = argv[0];
+      argv++; argc--;
+    }
+  }
+
+  if (context.target) {
+    envchain_search_values(
+      context.target, &envchain_list_value_callback, &context);
+  }
+  else {
+    if (context.show_value) envchain_abort_with_help();
+
+    envchain_search_namespaces(&envchain_list_namespace_callback, &context);
+  }
+  return 0;
+}
+
 /* functions for exec mode */
 
 static void
@@ -563,6 +740,10 @@ main(int argc, const char **argv)
   if (strcmp(argv[0], "--set") == 0 || strcmp(argv[0], "-s") == 0) {
     argv++; argc--;
     return envchain_set(argc, argv);
+  }
+  else if (strcmp(argv[0], "--list") == 0 || strcmp(argv[0], "-l") == 0) {
+    argv++; argc--;
+    return envchain_list(argc, argv);
   }
   else if (argv[0][0] == '-') {
     fprintf(stderr, "Unknown option %s\n", argv[0]);
