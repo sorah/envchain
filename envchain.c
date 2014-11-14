@@ -39,6 +39,7 @@
 #include <Security/Security.h>
 
 #define ENVCHAIN_SERVICE_PREFIX "envchain-"
+#define ENVCHAIN_ITEM_DESCRIPTION "envchain"
 
 static const char version[] = "0.2.0";
 const char *envchain_name;
@@ -333,6 +334,18 @@ envchain_save_value(const char *name, const char *key, char *value, int require_
   }
 
   free(service_name);
+
+  if (status != noErr) goto fail;
+
+  /* Set description */
+  SecKeychainAttribute attr_desc = {
+    kSecDescriptionItemAttr, strlen(ENVCHAIN_ITEM_DESCRIPTION), ENVCHAIN_ITEM_DESCRIPTION};
+  SecKeychainAttributeList attrs = {1, &attr_desc};
+  status = SecKeychainItemModifyAttributesAndData(
+    ref,
+    &attrs,
+    strlen(value), value
+  );
 
   if (status != noErr) goto fail;
 
