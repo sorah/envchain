@@ -1,4 +1,4 @@
-# envchain - set environment variables with OS X keychain
+# envchain - set environment variables with OS X keychain or D-Bus secret service
 
 ## What?
 
