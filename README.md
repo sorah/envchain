@@ -16,8 +16,8 @@ Don't give any credentials implicitly!
 ## Requirement (OS X)
 
 - OS X
-  - Confirmed to work on OS X 10.9 (Mavericks)
-  - OS X 10.7 (Lion) or later is required (unconfirmed)
+  - Confirmed to work on OS X 10.9 (Mavericks), 10.10 (Yosemite), and 10.11 (El Capitan)
+  - OS X 10.7 (Lion) or later is required, but not confirmed
 
 ## Requirement (Linux)
 
