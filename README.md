@@ -121,6 +121,7 @@ $ envchain --set --no-require-passphrase name
 ## Author
 
 - Sorah Fukumori <her@sorah.jp>
+- eagletmt
 
 ## License
 
