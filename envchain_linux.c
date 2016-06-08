@@ -79,7 +79,7 @@ static GList *search_unlocked_collection(const char *name, GError **error) {
 }
 
 int envchain_search_namespaces(envchain_namespace_search_callback callback,
-                               G_GNUC_UNUSED void *data) {
+                               void *data) {
   GError *error = NULL;
 
   GList *items = search_unlocked_collection(NULL, &error);
