@@ -110,7 +110,13 @@ $ envchain --set --no-require-passphrase name
 
 ### Screenshot
 
+#### OS X Keychain
+
 ![](http://img.sorah.jp/20140519_060147_dqwbh_20140519_060144_s1zku_Keychain_Access.png)
+
+#### Seahorse (gnome-keyring)
+
+![](https://img.sorah.jp/2016-06-08_19-46-10_ff9c444.png)
 
 ## Author
 
