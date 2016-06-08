@@ -9,7 +9,9 @@ A common practice is to set them in shell's intialization files such as `.bashrc
 
 Putting these secrets on disk in this way is a grave risk.
 
-`envchain` allows you to secure credential environment variables using OS X keychain, and set to environment variables only when you called explicitly.
+`envchain` allows you to secure credential environment variables to your secure vault, and set to environment variables only when you called explicitly.
+
+Currently, `envchain` supports OS X keychain and D-Bus secret service (gnome-keyring) as a vault.
 
 Don't give any credentials implicitly!
 
