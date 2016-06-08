@@ -30,12 +30,20 @@ Don't give any credentials implicitly!
 
 ## Installation
 
+### From Source
+
 ```
 $ make
 
 $ sudo make install
 (or)
 $ cp ./envchain ~/bin/
+```
+
+### Homebrew (OS X)
+
+```
+brew install envchain
 ```
 
 ## Usage
