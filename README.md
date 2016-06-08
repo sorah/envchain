@@ -13,11 +13,18 @@ Putting these secrets on disk in this way is a grave risk.
 
 Don't give any credentials implicitly!
 
-## Requirement
+## Requirement (OS X)
 
 - OS X
   - Confirmed to work on OS X 10.9 (Mavericks)
   - OS X 10.7 (Lion) or later is required (unconfirmed)
+
+## Requirement (Linux)
+
+- readline
+- libsecret
+- D-Bus Secret Service
+    - GNOME keyring is a common (and only?) implementation for it
 
 ## Installation
 
