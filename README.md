@@ -120,7 +120,7 @@ $ envchain --set --no-require-passphrase name
 
 ## Author
 
-Shota Fukumori (sora\_h) <her@sorah.jp>
+- Sorah Fukumori <her@sorah.jp>
 
 ## License
 
