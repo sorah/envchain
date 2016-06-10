@@ -30,6 +30,10 @@ static GList *search_unlocked_collection(const char *name, GError **error) {
   if (*error != NULL) {
     return NULL;
   }
+  if (collection == NULL) {
+    // Default collection does not exist
+    return NULL;
+  }
 
   if (secret_collection_get_locked(collection)) {
     GList *objects = g_list_append(NULL, collection);
