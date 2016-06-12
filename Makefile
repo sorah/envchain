@@ -14,7 +14,7 @@ DESTDIR ?= /usr
 
 all: envchain
 envchain: $(OBJS)
-	$(CC) $(LDCFLAGS) -o envchain $(OBJS) $(LIBS)
+	$(CC) $(LDFLAGS) -o envchain $(OBJS) $(LIBS)
 
 %.o: %.c envchain.h
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
