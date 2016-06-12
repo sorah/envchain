@@ -39,7 +39,7 @@
 #include "envchain.h"
 
 
-static const char version[] = "1.0.0";
+static const char version[] = "1.0.1";
 const char *envchain_name;
 
 /* for help */
