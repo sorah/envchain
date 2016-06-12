@@ -72,9 +72,9 @@ static GList *search_unlocked_collection(const char *name, GError **error) {
   if (name != NULL) {
     g_hash_table_insert(attributes, g_strdup("name"), g_strdup(name));
   }
-  GList *items = secret_collection_search_sync(
-      collection, envchain_get_schema(), attributes,
-      SECRET_SEARCH_ALL | SECRET_SEARCH_LOAD_SECRETS, NULL, error);
+  GList *items =
+      secret_collection_search_sync(collection, envchain_get_schema(),
+                                    attributes, SECRET_SEARCH_ALL, NULL, error);
 
   g_hash_table_unref(attributes);
   g_object_unref(collection);
@@ -112,15 +112,18 @@ int envchain_search_namespaces(envchain_namespace_search_callback callback,
   return 0;
 }
 
-int envchain_search_values(const char *name, envchain_search_callback callback,
-                           void *data) {
+// Returns FALSE if the error is retryable
+static gboolean try_search_items(const char *name,
+                                 envchain_search_callback callback, void *data,
+                                 int *result) {
   GError *error = NULL;
   GList *items = search_unlocked_collection(name, &error);
   if (error != NULL) {
     fprintf(stderr, "%s: search_unlocked_collection failed with %d: %s\n",
             envchain_name, error->code, error->message);
     g_error_free(error);
-    return 1;
+    *result = 1;
+    return TRUE;
   }
 
   GList *iter;
@@ -128,6 +131,19 @@ int envchain_search_values(const char *name, envchain_search_callback callback,
     SecretItem *item = iter->data;
     GHashTable *attrs = secret_item_get_attributes(item);
     char *key = g_hash_table_lookup(attrs, "key");
+    if (!secret_item_load_secret_sync(item, NULL, &error)) {
+      const int error_code = error->code;
+      g_error_free(error);
+      g_list_free(items);
+      if (error_code == SECRET_ERROR_PROTOCOL) {
+        return FALSE;
+      } else {
+        fprintf(stderr, "%s: secret_item_load_secret_sync failed with %d: %s\n",
+                envchain_name, error->code, error->message);
+        *result = 1;
+        return TRUE;
+      }
+    }
     SecretValue *value = secret_item_get_secret(item);
     callback(key, secret_value_get_text(value), data);
     secret_value_unref(value);
@@ -135,7 +151,27 @@ int envchain_search_values(const char *name, envchain_search_callback callback,
   }
 
   g_list_free(items);
-  return 0;
+  *result = 0;
+  return TRUE;
+}
+
+int envchain_search_values(const char *name, envchain_search_callback callback,
+                           void *data) {
+  /*
+   * Retry when org.freedesktop.Secret.Item.GetSecret (secret_item_load_secret_sync)
+   * fails. It occasionally fails with a message "** Message: received an
+   * invalid or unencryptable secret".
+   */
+  for (int retry_count = 0; retry_count < 3; ++retry_count) {
+    int result = -1;
+    if (try_search_items(name, callback, data, &result)) {
+      return result;
+    }
+    secret_service_disconnect();
+  }
+  fprintf(stderr, "%s: too many secret_item_load_secret_sync failures\n",
+          envchain_name);
+  return 1;
 }
 
 void envchain_save_value(const char *name, const char *key, char *value,
