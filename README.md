@@ -48,7 +48,12 @@ brew install envchain
 
 ## Usage
 
-### Define variables
+### Setting variables
+Environment variables are set within a specified namespace. You can set one or more variables in a single command:
+```
+envchain --set NAMESPACE ENV [ENV ..]
+```
+After running the command you will be prompted to enter the values for each variable. For example we can set two variables (called `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) within a namespace called `aws`:
 
 ```
 $ envchain --set aws AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
@@ -56,14 +61,14 @@ aws.AWS_ACCESS_KEY_ID: my-access-key
 aws.AWS_SECRET_ACCESS_KEY: secret
 ```
 
-You can separate environment variables via namespaces:
+Here we define a single new variable within a different namespace:
 
 ```
 $ envchain --set hubot HUBOT_HIPCHAT_PASSWORD
 hubot.HUBOT_HIPCHAT_PASSWORD: xxxx
 ```
 
-These will appear as application passwords with `envchain-NAMESPACE`
+These will all appear as application passwords with `envchain-NAMESPACE`
 in Keychain.
 
 ### Execute commands with defined variables
