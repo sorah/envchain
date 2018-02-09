@@ -1,0 +1,12 @@
+language: c
+addons:
+  apt:
+    packages:
+      - libsecret-1-dev
+compiler:
+  - gcc
+  - clang
+os:
+  - linux
+  - osx
+script: DESTDIR=$TRAVIS_BUILD_DIR make install
