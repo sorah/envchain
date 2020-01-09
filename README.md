@@ -93,6 +93,14 @@ $ envchain hubot env | grep HUBOT_
 HUBOT_HIPCHAT_PASSWORD: xxxx
 ```
 
+#### Execute commands with multiple NAMESPACEs
+
+Use comma separated NAMESPACEs
+
+```
+envchain aws,datadog terraform apply
+```
+
 ### More options
 
 #### `--noecho`
