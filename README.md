@@ -93,6 +93,16 @@ $ envchain hubot env | grep HUBOT_
 HUBOT_HIPCHAT_PASSWORD: xxxx
 ```
 
+You may specify multiple namespaces at once, with separating by commas:
+
+```
+$ envchain aws,hubot env | grep 'AWS_\|HUBOT_'
+AWS_ACCESS_KEY_ID=my-access-key
+AWS_SECRET_ACCESS_KEY=secret
+HUBOT_HIPCHAT_PASSWORD: xxxx
+```
+
+
 ### More options
 
 #### `--noecho`
