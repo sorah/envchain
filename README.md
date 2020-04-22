@@ -105,6 +105,15 @@ HUBOT_HIPCHAT_PASSWORD: xxxx
 
 ### More options
 
+#### `--list`
+
+List namespaces that have been created
+```
+$ envchain --list
+aws
+hubot
+```
+
 #### `--noecho`
 
 Do not echo user input

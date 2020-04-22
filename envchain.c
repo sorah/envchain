@@ -55,6 +55,8 @@ envchain_abort_with_help(void)
     "    %s (--set|-s) [--[no-]require-passphrase|-p|-P] [--noecho|-n] NAMESPACE ENV [ENV ..]\n"
     "  Execute with variables\n"
     "    %s NAMESPACE CMD [ARG ...]\n"
+    "  List namespaces\n"
+    "    %s --list\n"
     "\n"
     "Options:\n"
     "  --set (-s):\n"
@@ -67,7 +69,7 @@ envchain_abort_with_help(void)
     "    Replace the item's ACL list to require passphrase (or not).\n"
     "    Leave as is when both options are omitted.\n"
     ,
-    envchain_name, version, envchain_name, envchain_name
+    envchain_name, version, envchain_name, envchain_name, envchain_name
   );
   exit(2);
 }
