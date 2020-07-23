@@ -46,6 +46,12 @@ $ cp ./envchain ~/bin/
 brew install envchain
 ```
 
+### Autocomplete
+If you want to add an autocompletion of your namespaces then append this to your shell loader e.g.: `.bashrc` or equivalent.
+```
+complete -W "$(envchain --list | xargs )" envchain
+```
+
 ## Usage
 
 ### Saving variables
