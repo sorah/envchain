@@ -194,3 +194,14 @@ void envchain_save_value(const char *name, const char *key, char *value,
     g_error_free(error);
   }
 }
+
+void envchain_delete_value(const char *name, const char *key) {
+  GError *error = NULL;
+  secret_password_clear_sync(envchain_get_schema(), NULL, &error,
+                             "name", name, "key", key, NULL);
+  if (error != NULL) {
+    fprintf(stderr, "%s: secret_password_clear_sync failed with %d: %s\n",
+            envchain_name, error->code, error->message);
+    g_error_free(error);
+  }
+}

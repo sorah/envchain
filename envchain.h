@@ -19,5 +19,6 @@ int envchain_search_values(const char *name, envchain_search_callback callback,
                            void *data);
 void envchain_save_value(const char *name, const char *key, char *value,
                          int require_passphrase);
+void envchain_delete_value(const char *name, const char *key);
 
 #endif
