@@ -453,3 +453,11 @@ fail:
 
   return;
 }
+
+void
+envchain_delete_value(const char *name, const char *key) {
+  SecKeychainItemRef ref = NULL;
+  if (envchain_find_value(name, key, &ref) != 0) {
+    SecKeychainItemDelete(ref);
+  }
+}

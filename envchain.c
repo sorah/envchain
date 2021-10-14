@@ -57,6 +57,8 @@ envchain_abort_with_help(void)
     "    %s NAMESPACE CMD [ARG ...]\n"
     "  List namespaces\n"
     "    %s --list\n"
+    "  Remove variables\n"
+    "    %s --unset NAMESPACE ENV [ENV ..]\n"
     "\n"
     "Options:\n"
     "  --set (-s):\n"
@@ -69,7 +71,7 @@ envchain_abort_with_help(void)
     "    Replace the item's ACL list to require passphrase (or not).\n"
     "    Leave as is when both options are omitted.\n"
     ,
-    envchain_name, version, envchain_name, envchain_name, envchain_name
+    envchain_name, version, envchain_name, envchain_name, envchain_name, envchain_name
   );
   exit(2);
 }
@@ -234,6 +236,28 @@ envchain_list(int argc, const char **argv)
   return 0;
 }
 
+/* functions for --unset */
+
+int
+envchain_unset(int argc, const char **argv)
+{
+  const char *name, *key;
+
+  if (argc < 2) envchain_abort_with_help();
+
+  name = argv[0];
+  argv++; argc--;
+
+  while (0 < argc) {
+    key = argv[0];
+    argv++; argc--;
+
+    envchain_delete_value(name, key);
+  }
+
+  return 0;
+}
+
 /* functions for exec mode */
 
 static void
@@ -290,6 +314,10 @@ main(int argc, const char **argv)
   else if (strcmp(argv[0], "--list") == 0 || strcmp(argv[0], "-l") == 0) {
     argv++; argc--;
     return envchain_list(argc, argv);
+  }
+  else if (strcmp(argv[0], "--unset") == 0) {
+    argv++; argc--;
+    return envchain_unset(argc, argv);
   }
   else if (argv[0][0] == '-') {
     fprintf(stderr, "Unknown option %s\n", argv[0]);
