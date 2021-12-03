@@ -422,7 +422,6 @@ envchain_save_value(const char *name, const char *key, char *value, int require_
     if (status != noErr) goto passfail;
     if (app_list != NULL) CFRelease(app_list);
 
-    printf("%16x", prompt);
     if(require_passphrase == 1) {
       if (prompt == 0) prompt = 0x100;
       prompt |= kSecKeychainPromptRequirePassphase;
@@ -433,7 +432,6 @@ envchain_save_value(const char *name, const char *key, char *value, int require_
       app_list = envchain_self_trusted_app_list();
     }
 
-    printf("%16x", prompt);
     status = SecACLSetContents(acl, app_list, desc, prompt);
     if (status != noErr) goto passfail;
 
