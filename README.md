@@ -26,7 +26,8 @@ Don't give any credentials implicitly!
 - readline
 - libsecret
 - D-Bus Secret Service
-    - GNOME keyring is a common (and only?) implementation for it
+    - GNOME keyring
+    - KeePassXC
 
 ## Installation
 
