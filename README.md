@@ -136,6 +136,10 @@ Do not ask for keychain passphrase
 $ envchain --set --no-require-passphrase name
 ```
 
+## Sponsor
+
+<a href='https://ko-fi.com/J3J8CKMUU' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
 ### Screenshot
 
 #### OS X Keychain
