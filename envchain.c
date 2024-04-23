@@ -1,6 +1,6 @@
 /* envchain
  *
- * Copyright (c) 2014 Shota Fukumori (sora_h)
+ * Copyright (c) 2024 Sorah Fukumori
  *
  * MIT License
  *
@@ -39,7 +39,7 @@
 #include "envchain.h"
 
 
-static const char version[] = "1.0.1";
+static const char version[] = "1.1.0";
 const char *envchain_name;
 
 /* for help */
