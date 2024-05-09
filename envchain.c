@@ -49,16 +49,16 @@ envchain_abort_with_help(void)
 {
   fprintf(
     stderr,
-    "%s version %s\n\n"
+    "%1$s version %2$s\n\n"
     "Usage:\n"
     "  Add variables\n"
-    "    %s (--set|-s) [--[no-]require-passphrase|-p|-P] [--noecho|-n] NAMESPACE ENV [ENV ..]\n"
+    "    %1$s (--set|-s) [--[no-]require-passphrase|-p|-P] [--noecho|-n] NAMESPACE ENV [ENV ..]\n"
     "  Execute with variables\n"
-    "    %s NAMESPACE CMD [ARG ...]\n"
+    "    %1$s NAMESPACE CMD [ARG ...]\n"
     "  List namespaces\n"
-    "    %s --list\n"
+    "    %1$s --list\n"
     "  Remove variables\n"
-    "    %s --unset NAMESPACE ENV [ENV ..]\n"
+    "    %1$s --unset NAMESPACE ENV [ENV ..]\n"
     "\n"
     "Options:\n"
     "  --set (-s):\n"
@@ -71,7 +71,7 @@ envchain_abort_with_help(void)
     "    Replace the item's ACL list to require passphrase (or not).\n"
     "    Leave as is when both options are omitted.\n"
     ,
-    envchain_name, version, envchain_name, envchain_name, envchain_name, envchain_name
+    envchain_name, version
   );
   exit(2);
 }
